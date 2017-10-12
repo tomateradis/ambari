@@ -2768,6 +2768,13 @@ public class Configuration {
   public static final ConfigurationProperty<String> DISPATCH_PROPERTY_SCRIPT_DIRECTORY = new ConfigurationProperty<>(
           "notification.dispatch.alert.script.directory",AmbariPath.getPath("/var/lib/ambari-server/resources/scripts"));
 
+  /**
+   * The core pool size of the executor service that runs server side alerts.
+   */
+  @Markdown(description = "The core pool size of the executor service that runs server side alerts.")
+  public static final ConfigurationProperty<Integer> SERVER_SIDE_ALERTS_CORE_POOL_SIZE = new ConfigurationProperty<>(
+          "alerts.server.side.scheduler.threadpool.size.core", 4);
+
 
   private static final Logger LOG = LoggerFactory.getLogger(
     Configuration.class);
@@ -6205,5 +6212,9 @@ public class Configuration {
 
   public String getAutoGroupCreation() {
     return getProperty(AUTO_GROUP_CREATION);
+  }
+
+  public int getAlertServiceCorePoolSize() {
+    return Integer.parseInt(getProperty(SERVER_SIDE_ALERTS_CORE_POOL_SIZE));
   }
 }
