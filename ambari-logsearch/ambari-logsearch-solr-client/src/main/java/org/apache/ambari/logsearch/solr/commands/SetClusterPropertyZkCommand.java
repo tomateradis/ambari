@@ -19,6 +19,7 @@
 package org.apache.ambari.logsearch.solr.commands;
 
 import org.apache.ambari.logsearch.solr.AmbariSolrCloudClient;
+import org.apache.solr.common.cloud.ClusterProperties;
 import org.apache.solr.common.cloud.SolrZkClient;
 import org.apache.solr.common.cloud.SolrZooKeeper;
 import org.apache.solr.common.cloud.ZkStateReader;
@@ -33,8 +34,8 @@ public class SetClusterPropertyZkCommand extends AbstractZookeeperRetryCommand<S
   protected String executeZkCommand(AmbariSolrCloudClient client, SolrZkClient zkClient, SolrZooKeeper solrZooKeeper) throws Exception {
     String propertyName = client.getPropName();
     String propertyValue = client.getPropValue();
-    ZkStateReader reader = new ZkStateReader(zkClient);
-    reader.setClusterProperty(propertyName, propertyValue);
+    ClusterProperties clusterProperties = new ClusterProperties(zkClient);
+    clusterProperties.setClusterProperty(propertyName, propertyValue);
     return propertyValue;
   }
 }

@@ -43,7 +43,7 @@
     <deb.python.ver>python (&gt;= 2.6)</deb.python.ver>
     <deb.architecture>amd64</deb.architecture>
     <deb.dependency.list>${deb.python.ver}</deb.dependency.list>
-    <solr.version>5.5.2</solr.version>
+    <solr.version>6.6.0</solr.version>
     <hadoop.version>2.7.2</hadoop.version>
     <common.io.version>2.5</common.io.version>
   </properties>
@@ -81,8 +81,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.2</version>
         <configuration>
-          <source>1.7</source>
-          <target>1.7</target>
+          <source>1.8</source>
+          <target>1.8</target>
         </configuration>
       </plugin>
       <plugin>
