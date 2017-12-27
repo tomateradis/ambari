@@ -2305,6 +2305,9 @@ App.MainHostDetailsController = Em.Controller.extend(App.SupportClientConfigsDow
       case "checkHost":
         this.runHostCheckConfirmation();
         break;
+      case "regenerateKeytabFileOperations":
+        this.regenerateKeytabFileOperations();
+        break;
     }
   },
 
@@ -3241,6 +3244,33 @@ App.MainHostDetailsController = Em.Controller.extend(App.SupportClientConfigsDow
         }
       });
     }
-  }
+  },
+
+
+  regenerateKeytabFileOperations: function () {
+    var self = this;
+    var hostName = this.content.get('hostName');
+    var clusterName = App.get('clusterName');
+    return App.showConfirmationPopup(function() {
+      return App.ajax.send({
+        name: "admin.kerberos_security.regenerate_keytabs.host",
+        sender: self,
+        data: {
+          clusterName: clusterName,
+          hostName: hostName
+        },
+        success: 'regenerateKeytabFileOperationsSuccess',
+        error: 'regenerateKeytabFileOperationsError'
+      });
+    }, Em.I18n.t('question.sure.regenerateKeytab.host').format(hostName));
+  },
+
+  regenerateKeytabFileOperationsSuccess: function(){
+    App.showAlertPopup(Em.I18n.t('common.success'), Em.I18n.t('alerts.notifications.regenerateKeytab.host.success').format(this.content.get('hostName')));
+  },
+
+  regenerateKeytabFileOperationsError: function () {
+    App.showAlertPopup(Em.I18n.t('common.error'), Em.I18n.t('alerts.notifications.regenerateKeytab.host.error').format(this.content.get('hostName')));
+  },
 
 });
