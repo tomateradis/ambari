@@ -792,17 +792,17 @@ App.MainServiceItemController = Em.Controller.extend(App.SupportClientConfigsDow
           clusterName: clusterName,
           serviceName: serviceName
         },
-        success: 'regenerateKeytabFileOperationsSuccess',
-        error: 'regenerateKeytabFileOperationsError'
+        success: 'regenerateKeytabFileOperationsRequestSuccess',
+        error: 'regenerateKeytabFileOperationsRequestError'
       });
     }, Em.I18n.t('question.sure.regenerateKeytab.service').format(serviceName));
   },
 
-  regenerateKeytabFileOperationsSuccess: function(){
-    App.showAlertPopup(Em.I18n.t('common.success'), Em.I18n.t('alerts.notifications.regenerateKeytab.service.success').format(this.content.get('serviceName')));
+  regenerateKeytabFileOperationsRequestSuccess: function(){
+    App.router.get('backgroundOperationsController').showPopup();
   },
 
-  regenerateKeytabFileOperationsError: function () {
+  regenerateKeytabFileOperationsRequestError: function () {
     App.showAlertPopup(Em.I18n.t('common.error'), Em.I18n.t('alerts.notifications.regenerateKeytab.service.error').format(this.content.get('serviceName')));
   },
   /**

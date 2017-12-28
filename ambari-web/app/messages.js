@@ -1194,8 +1194,6 @@ Em.I18n.translations = {
   'alerts.notifications.addCustomPropertyPopup.header': 'Add Property',
   'alerts.notifications.addCustomPropertyPopup.error.propertyExists': 'Custom Property with current name already exists',
   'alerts.notifications.addCustomPropertyPopup.error.invalidPropertyName': 'Property name can only contain letters, numbers or . -_* characters',
-  'alerts.notifications.regenerateKeytab.service.success' : 'Keytabs for {0} service were successfully regenerated',
-  'alerts.notifications.regenerateKeytab.host.success' : 'Keytabs for {0} host were successfully regenerated',
   'alerts.notifications.regenerateKeytab.service.error' : 'Keytabs for {0} service could not be regenerated',
   'alerts.notifications.regenerateKeytab.host.error' : 'Keytabs for {0} host could not be regenerated',
 

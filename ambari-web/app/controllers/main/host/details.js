@@ -3259,17 +3259,17 @@ App.MainHostDetailsController = Em.Controller.extend(App.SupportClientConfigsDow
           clusterName: clusterName,
           hostName: hostName
         },
-        success: 'regenerateKeytabFileOperationsSuccess',
-        error: 'regenerateKeytabFileOperationsError'
+        success: 'regenerateKeytabFileOperationsRequestSuccess',
+        error: 'regenerateKeytabFileOperationsRequestError'
       });
     }, Em.I18n.t('question.sure.regenerateKeytab.host').format(hostName));
   },
 
-  regenerateKeytabFileOperationsSuccess: function(){
-    App.showAlertPopup(Em.I18n.t('common.success'), Em.I18n.t('alerts.notifications.regenerateKeytab.host.success').format(this.content.get('hostName')));
+  regenerateKeytabFileOperationsRequestSuccess: function(){
+    App.router.get('backgroundOperationsController').showPopup();
   },
 
-  regenerateKeytabFileOperationsError: function () {
+  regenerateKeytabFileOperationsRequestError: function () {
     App.showAlertPopup(Em.I18n.t('common.error'), Em.I18n.t('alerts.notifications.regenerateKeytab.host.error').format(this.content.get('hostName')));
   },
 
