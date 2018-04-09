@@ -28,6 +28,7 @@ import logging
 import socket
 import select
 import threading
+from datetime import timedelta, datetime
 
 try:
     from queue import Queue, Empty
@@ -195,6 +196,7 @@ class TestStompServer(ThreadedStompServer):
                  queue_manager=None,
                  topic_manager=None):
         self.ready_event = ready_event
+        self.frames = []
         StompServer.__init__(self, server_address, StompRequestHandler,
                              authenticator=authenticator,
                              queue_manager=queue_manager,
@@ -205,6 +207,29 @@ class TestStompServer(ThreadedStompServer):
         self.ready_event.set()
         StompServer.server_activate(self)
 
+    def collect_frames(self):
+      while True:
+        try:
+          self.frames.append(self.frames_queue.get_nowait())
+        except Empty:
+          return self.frames
+
+    def has_received_frame(self, matcher, within=timedelta(seconds=10)):
+      started = datetime.now()
+      while datetime.now() - started < within:
+        for frame in self.collect_frames():
+          if matcher(frame):
+            return
+        time.sleep(0.5)
+      self.dump_received_frames()
+      raise RuntimeError("Hasn't received frame with the given content <%s> within %s. Number of frames: %d" %
+                         (matcher, within, len(self.frames)))
+
+    def dump_received_frames(self):
+      print '#' * 40
+      for i, frame in enumerate(self.frames):
+        print '(%.2d). frame: %s' % (i, frame)
+      print '#' * 40
 
 class TestStompClient(object):
     """

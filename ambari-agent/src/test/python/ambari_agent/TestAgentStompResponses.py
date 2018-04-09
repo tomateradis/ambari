@@ -37,9 +37,40 @@ from ambari_agent.Utils import Utils
 
 from mock.mock import MagicMock, patch
 
+class HasKey:
+  def __init__(self, key):
+    self.key = key
+
+  def __str__(self):
+    return 'has key: %s' % self.key
+
+  def __call__(self, frame):
+    try:
+      return self.key in json.loads(frame.body)
+    except:
+      return False
+
+class HasRoleCommand:
+  def __init__(self, role, command, status):
+    self.role = role
+    self.command = command
+    self.status = status
+
+  def __str__(self):
+    return 'has roleCommand: %s role: %s status: %s' % (self.command, self.role, self.status)
+
+  def __call__(self, frame):
+    try:
+      body = json.loads(frame.body)['clusters']['0'][0]
+      return body['role'] == self.role \
+             and body['roleCommand'] == self.command \
+             and body['status'] == self.status
+    except:
+      return False
+
 @patch("socket.gethostbyname", new=MagicMock(return_value="192.168.64.101"))
 @patch("ambari_agent.hostname.hostname", new=MagicMock(return_value="c6401.ambari.apache.org"))
-class TestAgentStompResponses:#(BaseStompServerTestCase):
+class TestAgentStompResponses(BaseStompServerTestCase):
   def setUp(self):
     self.maxDiff = None
     self.initializer_module = None
@@ -102,12 +133,6 @@ class TestAgentStompResponses:#(BaseStompServerTestCase):
     f = Frame(frames.MESSAGE, headers={'destination': '/user/', 'correlationId': '5'}, body=self.get_json("alert_definitions.json"))
     self.server.topic_manager.send(f)
 
-    initial_topology_request = self.server.frames_queue.get()
-    initial_metadata_request = self.server.frames_queue.get()
-    initial_configs_request = self.server.frames_queue.get()
-    initial_host_level_params_request = self.server.frames_queue.get()
-    initial_alert_definitions_request = self.server.frames_queue.get()
-
     while not self.initializer_module.is_registered:
       time.sleep(0.1)
 
@@ -120,22 +145,9 @@ class TestAgentStompResponses:#(BaseStompServerTestCase):
     f = Frame(frames.MESSAGE, headers={'destination': '/user/commands'}, body=self.get_json("execution_commands.json"))
     self.server.topic_manager.send(f)
 
-    commands_subscribe_frame = self.server.frames_queue.get()
-    configurations_subscribe_frame = self.server.frames_queue.get()
-    metadata_subscribe_frame = self.server.frames_queue.get()
-    topologies_subscribe_frame = self.server.frames_queue.get()
-    host_level_params_subscribe_frame = self.server.frames_queue.get()
-    alert_definitions_subscribe_frame = self.server.frames_queue.get()
-    heartbeat_frame = self.server.frames_queue.get()
-    dn_install_in_progress_frame = json.loads(self.server.frames_queue.get().body)
-    dn_install_failed_frame = json.loads(self.server.frames_queue.get().body)
-    zk_install_in_progress_frame = json.loads(self.server.frames_queue.get().body)
-    zk_install_failed_frame = json.loads(self.server.frames_queue.get().body)
-    action_status_in_progress_frame = json.loads(self.server.frames_queue.get().body)
-    action_status_failed_frame = json.loads(self.server.frames_queue.get().body)
-    dn_recovery_in_progress_frame = json.loads(self.server.frames_queue.get().body)
-    dn_recovery_failed_frame = json.loads(self.server.frames_queue.get().body)
-    host_status_report = json.loads(self.server.frames_queue.get().body)
+    self.server.has_received_frame(HasKey('mounts'))
+    self.server.has_received_frame(HasRoleCommand('DATANODE', 'INSTALL', 'IN_PROGRESS'))
+    self.server.has_received_frame(HasRoleCommand('DATANODE', 'INSTALL', 'FAILED'))
 
     self.initializer_module.stop_event.set()
 
@@ -148,17 +160,9 @@ class TestAgentStompResponses:#(BaseStompServerTestCase):
     host_status_reporter.join()
     action_queue.join()
 
-    self.assertTrue('mounts' in host_status_report)
     self.assertEquals(self.initializer_module.topology_cache['0']['hosts'][0]['hostName'], 'c6401.ambari.apache.org')
     self.assertEquals(self.initializer_module.metadata_cache['0']['status_commands_to_run'], ('STATUS',))
     self.assertEquals(self.initializer_module.configurations_cache['0']['configurations']['zoo.cfg']['clientPort'], '2181')
-    self.assertEquals(dn_install_in_progress_frame['clusters']['0'][0]['roleCommand'], 'INSTALL')
-    self.assertEquals(dn_install_in_progress_frame['clusters']['0'][0]['role'], 'DATANODE')
-    self.assertEquals(dn_install_in_progress_frame['clusters']['0'][0]['status'], 'IN_PROGRESS')
-    self.assertEquals(dn_install_failed_frame['clusters']['0'][0]['status'], 'FAILED')
-    self.assertEquals(dn_recovery_in_progress_frame['clusters']['0'][0]['roleCommand'], 'INSTALL')
-    self.assertEquals(dn_recovery_in_progress_frame['clusters']['0'][0]['role'], 'DATANODE')
-    self.assertEquals(dn_recovery_in_progress_frame['clusters']['0'][0]['status'], 'IN_PROGRESS')
 
     #============================================================================================
     #============================================================================================
@@ -228,7 +232,7 @@ class TestAgentStompResponses:#(BaseStompServerTestCase):
     action_queue.join()
 
 
-  def test_topology_update_and_delete(self):
+  def Xtest_topology_update_and_delete(self):
     self.initializer_module = InitializerModule()
     self.initializer_module.init()
 
@@ -307,7 +311,7 @@ class TestAgentStompResponses:#(BaseStompServerTestCase):
     heartbeat_thread.join()
 
 
-  def test_alert_definitions_update_and_delete(self):
+  def Xtest_alert_definitions_update_and_delete(self):
     self.initializer_module = InitializerModule()
     self.initializer_module.init()
 
